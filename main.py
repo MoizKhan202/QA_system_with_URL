@@ -12,6 +12,9 @@ tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
 st.sidebar.title("URL Input")
 url = st.sidebar.text_input("Enter a URL to extract text:")
 
+# Initialize context variable
+context = None
+
 # Extract text from the URL
 def extract_text_from_url(url):
     try:
@@ -32,8 +35,9 @@ def extract_text_from_url(url):
 # Display extracted text
 if url:
     st.info("Extracting text from the provided URL...")
-    context = extract_text_from_url(url)
-    if context:
+    extracted_text = extract_text_from_url(url)
+    if extracted_text:
+        context = extracted_text  # Assign extracted text to context
         st.success("Text extracted successfully!")
         st.text_area("Extracted Context", context[:1000], height=300)
 
