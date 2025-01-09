@@ -3,4 +3,6 @@ transformers
 requests
 beautifulsoup4
 nltk
-torch torchvision torchaudio
+torch 
+torchvision 
+torchaudio
