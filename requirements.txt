@@ -2,6 +2,5 @@ streamlit
 transformers
 requests
 beautifulsoup4
-nltk
-torch 
-
+nltk 
+torch==2.0.1+cpu torchvision==0.15.2+cpu torchaudio==0.10.1+cpu -f https://download.pytorch.org/whl/cpu
