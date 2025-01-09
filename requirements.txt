@@ -1,0 +1,5 @@
+streamlit
+transformers
+requests
+beautifulsoup4
+nltk
