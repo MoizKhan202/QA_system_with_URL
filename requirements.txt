@@ -3,4 +3,7 @@ transformers
 requests
 beautifulsoup4
 nltk 
-torch torchvision torchaudio -f https://download.pytorch.org/whl/cpu
+--find-links https://download.pytorch.org/whl/cpu  # The find-links line
+torch
+torchvision
+torchaudio
