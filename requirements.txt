@@ -3,6 +3,4 @@ transformers
 requests
 beautifulsoup4
 nltk 
-torch==2.0.1+cpu -f https://download.pytorch.org/whl/cpu
-torchvision==0.15.2+cpu -f https://download.pytorch.org/whl/cpu
-torchaudio==0.10.1+cpu -f https://download.pytorch.org/whl/cpu
+torch torchvision torchaudio -f https://download.pytorch.org/whl/cpu
