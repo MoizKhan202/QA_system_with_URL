@@ -21,7 +21,6 @@ except LookupError:
 
 @st.cache_resource
 def load_models():
-    """Loads the tokenizer and QA model. Cached for efficiency."""
     try:
         tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
         model = AutoModelForQuestionAnswering.from_pretrained("deepset/roberta-base-squad2")
@@ -32,7 +31,7 @@ def load_models():
         return None
 
 def extract_text_from_url(url):
-    """Extracts text content from a given URL."""
+    
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -48,7 +47,7 @@ def extract_text_from_url(url):
         return None
 
 def split_into_chunks(text, chunk_size=500):
-    """Splits text into smaller chunks."""
+    
     sentences = sent_tokenize(text)
     chunks = []
     current_chunk = ""
