@@ -5,8 +5,19 @@ from bs4 import BeautifulSoup
 import nltk
 from nltk.tokenize import sent_tokenize
 import torch
+import os
 
-nltk.download('punkt')
+# Set NLTK data path
+nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
+if not os.path.exists(nltk_data_path):
+    os.makedirs(nltk_data_path)
+nltk.data.path.append(nltk_data_path)
+
+# Download punkt only if not present
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt', download_dir=nltk_data_path)
 
 @st.cache_resource
 def load_models():
