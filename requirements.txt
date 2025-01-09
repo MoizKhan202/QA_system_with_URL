@@ -1,14 +1,5 @@
-# Streamlit for the web interface
 streamlit
-
-# Hugging Face Transformers for QA pipeline
 transformers
-
-# Tokenization support for QA model
 sentencepiece
-
-# BeautifulSoup for text extraction
 beautifulsoup4
-
-# Requests for fetching the URL content
 requests
