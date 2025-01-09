@@ -4,26 +4,30 @@ import requests
 from bs4 import BeautifulSoup
 import nltk
 from nltk.tokenize import sent_tokenize
+import torch
 
-nltk.download('punkt')  # Download punkt tokenizer if not already present
+nltk.download('punkt')
 
 @st.cache_resource
 def load_models():
     """Loads the tokenizer and QA model. Cached for efficiency."""
-    tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
-    model = AutoModelForQuestionAnswering.from_pretrained("deepset/roberta-base-squad2")
-    qa_pipeline = pipeline("question-answering", model=model, tokenizer=tokenizer)
-    return qa_pipeline
+    try:
+        tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
+        model = AutoModelForQuestionAnswering.from_pretrained("deepset/roberta-base-squad2")
+        qa_pipeline = pipeline("question-answering", model=model, tokenizer=tokenizer, device=0 if torch.cuda.is_available() else -1)
+        return qa_pipeline
+    except Exception as e:
+        st.error(f"Error loading models: {e}")
+        return None
 
 def extract_text_from_url(url):
     """Extracts text content from a given URL."""
     try:
-        response = requests.get(url, timeout=10) # Added timeout
-        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
         soup = BeautifulSoup(response.content, "html.parser")
         text = soup.get_text(separator="\n")
-        #Improved text cleaning
-        text = " ".join(text.split()) #remove extra whitespaces and newlines
+        text = " ".join(text.split())
         return text
     except requests.exceptions.RequestException as e:
         st.error(f"Error fetching URL: {e}")
@@ -38,12 +42,12 @@ def split_into_chunks(text, chunk_size=500):
     chunks = []
     current_chunk = ""
     for sentence in sentences:
-      if len(current_chunk) + len(sentence) + 1 <= chunk_size:
-        current_chunk += sentence + " "
-      else:
-        chunks.append(current_chunk.strip())
-        current_chunk = sentence + " "
-    chunks.append(current_chunk.strip()) # Add last chunk
+        if len(current_chunk) + len(sentence) + 1 <= chunk_size:
+            current_chunk += sentence + " "
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence + " "
+    chunks.append(current_chunk.strip())
     return chunks
 
 # Streamlit app
@@ -54,6 +58,9 @@ question = st.text_input("Enter your question:")
 
 qa_pipeline = load_models()
 
+if qa_pipeline is None:
+    st.stop()
+
 if st.button("Submit"):
     if not url:
         st.warning("Please enter a URL.")
@@ -61,19 +68,22 @@ if st.button("Submit"):
         st.warning("Please enter a question.")
     else:
         with st.spinner("Fetching and processing webpage..."):
-          context = extract_text_from_url(url)
-          if context:
-            chunks = split_into_chunks(context)
-            answers = []
-            for i, chunk in enumerate(chunks):
-              try: #Added try-except block for QA
-                result = qa_pipeline(question=question, context=chunk)
-                answers.append({"chunk_index": i, "answer": result['answer'], "score": result['score']})
-              except Exception as e:
-                st.error(f"Error during QA on chunk {i+1}: {e}")
-            if answers:
-              best_answer = max(answers, key=lambda x: x['score'])
-              st.write("**Answer:**", best_answer['answer'])
-              st.write("**Score:**", best_answer['score'])
+            context = extract_text_from_url(url)
+            if context:
+                chunks = split_into_chunks(context)
+                answers = []
+                for i, chunk in enumerate(chunks):
+                    try:
+                        result = qa_pipeline(question=question, context=chunk)
+                        answers.append({"chunk_index": i, "answer": result['answer'], "score": result['score']})
+                    except Exception as e:
+                        st.error(f"Error during QA on chunk {i+1}: {e}")
+
+                if answers:
+                    best_answer = max(answers, key=lambda x: x['score'])
+                    st.write("**Answer:**", best_answer['answer'])
+                    st.write("**Score:**", best_answer['score'])
+                else:
+                    st.write("Could not find an answer in the provided context.")
             else:
-              st.write("Could not find an answer in the provided context.")
+                st.write("Could not retrieve content from the provided URL.")
