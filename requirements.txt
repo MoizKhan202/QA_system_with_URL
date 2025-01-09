@@ -1,9 +1,14 @@
+# Streamlit for the web interface
 streamlit
+
+# Hugging Face Transformers for QA pipeline
 transformers
-requests
+
+# Tokenization support for QA model
+sentencepiece
+
+# BeautifulSoup for text extraction
 beautifulsoup4
-nltk 
---find-links https://download.pytorch.org/whl/cpu  # The find-links line
-torch
-torchvision
-torchaudio
+
+# Requests for fetching the URL content
+requests
